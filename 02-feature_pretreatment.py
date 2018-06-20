@@ -4,7 +4,7 @@
 # 数值型数据：标准缩放(1、归一化 2、标准化 3、缺失值)
 # 类别型数据： one-hot编码
 # 时间类型： 时间的切分
-# sclearn 归一化： sklearn.preprocessing.MinMaxScaler(feature_range=(0,1)...)
+# sklearn 归一化： sklearn.preprocessing.MinMaxScaler(feature_range=(0,1)...)
 from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.decomposition import PCA
