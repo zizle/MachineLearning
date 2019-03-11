@@ -21,10 +21,13 @@
     如：
     文本特征提取(单词作为特征) - (1).sklearn.feature_extraction.text.CountVectorizer(stop_words=[]), 返回sparse矩阵
     参数stop_words为停用词，有现成停用词表
+    (2).sklearn.feature_extraction.text.Tfidfvectorizer()利用此的逆向文档数据(一个词的普遍重要程度),衡量词的重要性程度。
     详见： textToVectorEnglish()、textToVectorChinese()和textToVectorAutoChinese()函数
+          textToVectorChineseTfidf()
 
 
 """
+
 
 def datasets_iris():
     """内置鸢尾花数据集"""
@@ -120,6 +123,38 @@ def textToVectorAutoChinese():
     print("特征名字:\n", feature_names)
 
 
+def textToVectorChineseTfidf():
+    """利用TF-IDF方法进行文本特征抽取"""
+    import jieba
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    # 中文提取需要使用分词
+    data = [
+        "2018年，我国经济总量突破90万亿元，经济运行稳中有进，转型升级蹄疾步稳。",
+        "全国居民人均可支配收入达28228元，民生福祉不断改善，人民获得感明显增强。",
+        "今天的节目，就让我们走进重庆的一家基层卫生院，看看那里发生的故事。"
+    ]
+    split_data = []
+    # 遍历句子分词
+    for sent in data:
+        split_data.append(" ".join(list(jieba.cut(sent))))
+
+    transfer = TfidfVectorizer()
+    data_new = transfer.fit_transform(split_data)
+    feature_names = transfer.get_feature_names()
+    print("特征提取结果:\n", data_new.toarray())
+    print("特征名字:\n", feature_names)
+
+
 if __name__ == '__main__':
-    textToVectorAutoChinese()
+    # 内置鸢尾花数据集
+    # datasets_iris()
+    # 字典特征提取
+    # dictToVector()
+    # 英语文本特征提取
+    # textToVectorEnglish()
+    # 中文文本提取
+    # textToVectorChinese()
+    # 中文文本自动分词特征提取
+    # textToVectorAutoChinese()
+    textToVectorChineseTfidf()
 
