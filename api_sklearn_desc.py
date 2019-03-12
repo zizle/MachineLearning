@@ -43,11 +43,21 @@
 
   2.2 特征降维
     降低特征的个数，得到特征与特征之间是不相关的
-    特征选择方法：1 filter过滤式（方差选择法 - 低方差特征过滤、相关系数 - 特征与特征之间的相关性）
+    特征选择方法：1 filter过滤式
+                （方差选择法 - 低方差特征过滤
+                 相关系数 - 特征与特征之间的相关性
+                 (计算皮尔森相关系数 - 在-1与1之间， 接近0表示基本不相关： 详见函数filterVarianceThreshold)
+                 ）
                2 embeded嵌入式（决策树、正则化、深度学习）
 
     API
     # 低方差特征过滤  sklearn.feature_selection.VarianceThreshold(threshold = 0.0)  # 参数为设置的方差，删掉比其小的特征
+    详见函数：
+        filterVarianceThreshold()
+
+    主成分分析：数据的降维过程，可能会舍弃原有数据，创造出新的变量，作用是数据降维，尽可能降低数据维数，损失少量信息，应用与回归或者聚类分析
+    详见函数：
+        pca()
 
 
 
@@ -206,6 +216,39 @@ def standScalarDealData():
     print(data_new)
 
 
+def filterVarianceThreshold():
+    from sklearn.feature_selection import VarianceThreshold
+    import numpy as np
+    data = np.array([
+        [40920, 8.32, 0.9539],
+        [14488, 7.15, 1.6739],
+        [26052, 1.44, 0.8051],
+        [75136, 13.14, 0.4268],
+        [38344, 1.66, 0.1342]
+    ])
+    print(data, data.shape)
+    transfer = VarianceThreshold(threshold=10)  # 方差小于threshold的特征会被过滤掉
+    data_new = transfer.fit_transform(data)
+    print(data_new, data_new.shape)
+
+    # 计算皮尔森相关系数
+    from scipy.stats import pearsonr
+    r = pearsonr(data[:, 0], data[:, 1])  # 参数x,y即计算x与y的相关性
+    print("皮尔森相关系数：", r[0])
+
+
+def pca():
+    import numpy as np
+    from sklearn.decomposition import PCA
+    data = np.array([
+        [2, 8, 4, 5],
+        [6, 3, 0, 8],
+        [5, 4, 9, 1]
+    ])
+    transfer = PCA(n_components=0.99)  # 参数n_components如果是小数表示保留百分之多少的信息;如果是整数表示减少到多少特征
+    data_new = transfer.fit_transform(data)
+    print(data_new)
+
 
 if __name__ == '__main__':
     # 内置鸢尾花数据集
@@ -223,4 +266,9 @@ if __name__ == '__main__':
     # 归一化
     # minMaxDealData()
     # 标准化
-    standScalarDealData()
+    # standScalarDealData()
+    # 过滤低方差特征(比较相近的或相关性极强的特征)
+    # filterVarianceThreshold()
+    # 主成分分析
+    pca()
+
