@@ -91,6 +91,12 @@
             文本分类
         API:
           sklearn.naive_bayes.MultinomialNB(alpha=1.0)
+          详见函数： naive_bayes_algorithm()
+
+    3. 决策树 - 高效地进行决策
+        根据特征的先后顺序
+        基本概念：
+            信息熵：
 
 
 """
@@ -366,6 +372,51 @@ def knn_algorithm_gscv():
     print("交叉验证结果：", estimator.cv_results_)
 
 
+def naive_bayes_algorithm():
+    """朴素贝叶斯算法"""
+    # 忽略https安全验证
+    # import ssl
+    # ssl._create_default_https_context = ssl._create_unverified_context
+    from sklearn.naive_bayes import MultinomialNB
+    from sklearn.datasets import fetch_20newsgroups
+    from sklearn.model_selection import train_test_split
+    from sklearn.feature_extraction.text import TfidfVectorizer
+    from sklearn.model_selection import GridSearchCV
+
+    # 获取数据集
+    news = fetch_20newsgroups(subset="all")
+
+    # 划分数据集
+    x_train, x_test, y_train, y_test = train_test_split(news.data, news.target)
+    # print("数据训练集：\n", x_train)
+    # print("数据测试集：\n", x_test)
+    # 特征工程(特征提取)
+    transfer = TfidfVectorizer()
+    x_train = transfer.fit_transform(x_train)
+    x_test = transfer.transform(x_test)
+    # 朴素贝叶斯算法预估
+    estimator = MultinomialNB()
+    # 加入交叉验证和网格搜索(模型调优)
+    # 参数K的准备
+    params_dict = {"alpha": [1, 2, 3, 4]}
+    estimator = GridSearchCV(estimator, param_grid=params_dict, cv=3)  # 参数cv便是交叉验证的折数
+    estimator.fit(x_train, y_train)
+    # 模型评估
+    # 方法1：直接比对真实值和预测值
+    y_predict = estimator.predict(x_test)
+    print("y_predict=", y_predict)
+    print("y_test=", y_test)
+    print("直接比对:\n", y_predict == y_test)
+    # 方法2：计算准确率
+    score = estimator.score(x_test, y_test)
+    print("准确率=", score)
+
+    print("最佳参数：", estimator.best_params_)
+    print("最佳结果：", estimator.best_score_)
+    print("最佳估计器：", estimator.best_estimator_)
+    print("交叉验证结果：", estimator.cv_results_)
+
+
 if __name__ == '__main__':
     # 内置鸢尾花数据集
     # datasets_iris()
@@ -390,4 +441,6 @@ if __name__ == '__main__':
     # K-近邻算法预测鸢尾花种类
     # knn_algorithm()
     # K-近邻算法预测鸢尾花种类加入交叉验证和网格搜索功能
-    knn_algorithm_gscv()
+    # knn_algorithm_gscv()
+    # 朴素贝叶斯
+    naive_bayes_algorithm()
