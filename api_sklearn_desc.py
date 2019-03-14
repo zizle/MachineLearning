@@ -59,7 +59,38 @@
     详见函数：
         pca()
 
+3. 算法
+    1. KNN算法：根据邻居推算出类别
+        K值取得过大， 容易受到异常点的影响
+        K值取得过大，容易受样本不均衡的影响
+        欧式距离
+        曼哈顿距离： 绝对值距离
+        明可夫斯基距离
 
+        模型评估方法：
+            (交叉验证)：将训练集数据再次划分，每份分成一份验证集和其他的训练集，交叉验证集的位置进行训练
+            (网格搜索)：当需要手动参数的时候，进行传入字典型的数据，进行搜索哪个参数较为合适
+    API:
+     sklearn.neighbors.KNeighborsClassifier(n_neighbors=5, algorithm='auto')
+     案例：使用鸢尾花数据集预测种类
+     详见：knn_algorithm()函数
+
+    2. 朴素贝叶斯算法
+        基础概念：
+            联合概率：包含多个条件且同时成立的概率，记P(A,B)
+            条件概率：事件A在另一个时间B已经发生的条件下的概率，记P(A|B)
+            相互独立：P(A,B) = P(A)P(B)
+        贝叶斯公式：
+            P(C|W) = (P(W|C)P(C)) / P(W)
+
+        朴素贝叶斯：假设特征与特征之间是相互独立的。
+        拉普拉斯平滑系数：防止计算出的分类概率为0
+            P(F1|C) = (Ni + a) / (N + am)
+            a为1, m是训练文档中统计出的特征词个数
+        应用场景：
+            文本分类
+        API:
+          sklearn.naive_bayes.MultinomialNB(alpha=1.0)
 
 
 """
@@ -250,6 +281,91 @@ def pca():
     print(data_new)
 
 
+"""算法"""
+
+
+def knn_algorithm():
+    """K-近邻算法"""
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.neighbors import KNeighborsClassifier
+    # 获取数据
+    iris = load_iris()
+    # 数据集的划分
+    x_train, x_test, y_train, y_test = train_test_split(iris.data, iris.target, random_state=5)
+    # print("训练集的特征值：\n", x_train)
+    print("训练集的大小：\n", x_train.shape)
+    # print("测试集的特征值：\n", x_test)
+    print("测试集的大小：\n", x_test.shape)
+    # print("训练集的目标值：\n", y_train)
+    # print("测试集的目标值：\n", y_test)
+    # 特征工程：标准化
+    transfer = StandardScaler()
+    x_train = transfer.fit_transform(x_train)
+    x_test = transfer.transform(x_test)
+    # KNN算法预估器
+    estimator = KNeighborsClassifier(n_neighbors=3)
+    estimator.fit(x_train, y_train)
+    # 模型评估
+    # 方法1：直接比对真实值和预测值
+    y_predict = estimator.predict(x_test)
+    print("y_predict=", y_predict)
+    print("y_test=", y_test)
+    print("直接比对:\n", y_predict == y_test)
+    # 方法2：计算准确率
+    score = estimator.score(x_test, y_test)
+    print("准确率=", score)
+
+
+def knn_algorithm_gscv():
+    """
+    K-近邻算法增加网格搜索和交叉验证
+    :return:
+    """
+    """K-近邻算法"""
+    from sklearn.datasets import load_iris
+    from sklearn.model_selection import train_test_split
+    from sklearn.preprocessing import StandardScaler
+    from sklearn.neighbors import KNeighborsClassifier
+    from sklearn.model_selection import GridSearchCV
+    # 获取数据
+    iris = load_iris()
+    # 数据集的划分
+    x_train, x_test, y_train, y_test = train_test_split(iris.data, iris.target, random_state=5)
+    # print("训练集的特征值：\n", x_train)
+    print("训练集的大小：\n", x_train.shape)
+    # print("测试集的特征值：\n", x_test)
+    print("测试集的大小：\n", x_test.shape)
+    # print("训练集的目标值：\n", y_train)
+    # print("测试集的目标值：\n", y_test)
+    # 特征工程：标准化
+    transfer = StandardScaler()
+    x_train = transfer.fit_transform(x_train)
+    x_test = transfer.transform(x_test)
+    # KNN算法预估器
+    estimator = KNeighborsClassifier()
+    # 加入交叉验证和网格搜索
+    # 参数K的准备
+    params_dict = {"n_neighbors": [1, 3, 5, 7, 9, 11]}
+    estimator = GridSearchCV(estimator, param_grid=params_dict, cv=10)  # 参数cv便是交叉验证的折数
+    estimator.fit(x_train, y_train)
+    # 模型评估
+    # 方法1：直接比对真实值和预测值
+    y_predict = estimator.predict(x_test)
+    print("y_predict=", y_predict)
+    print("y_test=", y_test)
+    print("直接比对:\n", y_predict == y_test)
+    # 方法2：计算准确率
+    score = estimator.score(x_test, y_test)
+    print("准确率=", score)
+
+    print("最佳参数：", estimator.best_params_)
+    print("最佳结果：", estimator.best_score_)
+    print("最佳估计器：", estimator.best_estimator_)
+    print("交叉验证结果：", estimator.cv_results_)
+
+
 if __name__ == '__main__':
     # 内置鸢尾花数据集
     # datasets_iris()
@@ -270,5 +386,8 @@ if __name__ == '__main__':
     # 过滤低方差特征(比较相近的或相关性极强的特征)
     # filterVarianceThreshold()
     # 主成分分析
-    pca()
-
+    # pca()
+    # K-近邻算法预测鸢尾花种类
+    # knn_algorithm()
+    # K-近邻算法预测鸢尾花种类加入交叉验证和网格搜索功能
+    knn_algorithm_gscv()
